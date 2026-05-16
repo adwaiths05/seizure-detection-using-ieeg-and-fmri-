@@ -1,0 +1,32 @@
+# SOZ_GAT Backend — Python dependencies
+# Install: pip install -r requirements.txt
+
+# Web framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pydantic==2.7.1
+pydantic-settings==2.3.3
+python-multipart==0.0.9    # for file uploads
+python-dotenv==1.0.1
+
+# ML / signal processing
+torch==2.3.0               # CPU build — use torch==2.3.0+cu118 for GPU
+torch-geometric==2.5.3
+scipy==1.13.0
+scikit-learn==1.5.0
+numpy==1.26.4
+mne==1.7.1
+
+# Optional: GPU (uncomment and remove CPU torch above)
+# torch==2.3.0+cu118
+# --extra-index-url https://download.pytorch.org/whl/cu118
+
+# PyG sparse kernels (optional — speeds up large graphs)
+# torch-scatter==2.1.2
+# torch-sparse==0.6.18
+
+# Security / rate limiting (production)
+# slowapi==0.1.9            # Redis-backed rate limiter
+
+# Monitoring (optional)
+# prometheus-fastapi-instrumentator==6.1.0
