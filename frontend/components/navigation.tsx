@@ -116,7 +116,7 @@ export function Navigation() {
                 <Activity className="h-5 w-5 text-primary" strokeWidth={2.25} />
               </span>
               <span className="truncate text-lg font-semibold tracking-tight text-foreground transition-colors group-hover:text-primary">
-                SOZ_GAT
+                NeuroMap
               </span>
             </Link>
           </div>

@@ -21,17 +21,16 @@ export default function Home() {
             <div className="mx-auto max-w-5xl text-center">
               <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary shadow-[0_0_24px_-8px_oklch(0.65_0.14_195/0.5)] sm:text-sm">
                 <Stethoscope className="h-3.5 w-3.5 opacity-90" aria-hidden />
-                Clinical decision support · Intracranial EEG
+                Clinical decision support · fMRI & iEEG
               </div>
 
               <h1 className="text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl lg:leading-[1.08]">
                 <span className="text-gradient-clinical">Seizure onset zone</span>
-                <span className="block text-foreground">analysis with SOZ_GAT</span>
+                <span className="block text-foreground">analysis with NeuroMap</span>
               </h1>
 
               <p className="mx-auto mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Graph attention inference on multi-channel iEEG — coherence-aware graphs, fifteen-domain features per
-                electrode, and calibrated probabilities for epilepsy surgery planning workflows.
+                Graph attention inference on fMRI functional connectivity & multi-channel iEEG — topological graph learning, coherence-aware graphs, multi-domain features, and calibrated probabilities for epilepsy surgery planning workflows.
               </p>
 
               <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
@@ -75,7 +74,7 @@ export default function Home() {
                   {
                     icon: Activity,
                     title: 'fMRI FC matrices',
-                    desc: 'Submit functional connectivity matrices and view ROI probabilities in a client-side anatomical overlay.',
+                    desc: 'Submit functional connectivity matrices for EpilepsyGAT processing and view ROI probabilities in a client-side anatomical overlay.',
                   },
                   {
                     icon: BarChart3,
@@ -133,10 +132,9 @@ export default function Home() {
                       <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl" aria-hidden />
                       <Brain className="relative h-28 w-28 text-primary/90" strokeWidth={1} />
                     </div>
-                    <p className="text-sm font-medium uppercase tracking-widest text-primary">SOZ_GAT</p>
+                    <p className="text-sm font-medium uppercase tracking-widest text-primary">NeuroMap</p>
                     <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-                      3-layer graph attention with skip connection · gamma coherence edges · OpenNeuro ds004752 training
-                      lineage
+                      EpilepsyGAT & CNN Ensemble for fMRI · 3-layer GAT for iEEG · Coherence & FC edges · OpenNeuro ds004469 & ds004752 training lineage
                     </p>
                     <Button variant="secondary" className="mt-8 border border-secondary/30 bg-secondary/15 text-secondary-foreground hover:bg-secondary/25" asChild>
                       <Link href="/analyze">Open analysis workspace</Link>
@@ -179,7 +177,7 @@ export default function Home() {
 
           <footer className="border-t border-border/60 bg-card/40 px-4 py-10 sm:px-6 lg:px-8">
             <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:flex-row">
-              <p className="text-center text-sm text-muted-foreground sm:text-left">© {new Date().getFullYear()} SOZ_GAT. Research and clinical support use only.</p>
+              <p className="text-center text-sm text-muted-foreground sm:text-left">© {new Date().getFullYear()} NeuroMap. Research and clinical support use only.</p>
               <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
                 <Link href="/model-info" className="text-muted-foreground transition-colors hover:text-primary">
                   Documentation

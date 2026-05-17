@@ -1,5 +1,5 @@
 /**
- * Base URL for the SOZ_GAT FastAPI service (Docker on host port 8000 by default).
+ * Base URL for the NeuroMap FastAPI service (Docker on host port 8000 by default).
  * Set NEXT_PUBLIC_API_URL in frontend/.env.local when the API is not on localhost:8000.
  */
 export function getApiBaseUrl(): string {

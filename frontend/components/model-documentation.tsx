@@ -11,11 +11,11 @@ export function ModelDocumentation() {
     <div className="w-full">
       <div className="mb-10">
         <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          SOZ_GAT Model Documentation
+          NeuroMap Model Documentation
         </h2>
         <p className="mt-3 max-w-2xl text-base text-muted-foreground leading-relaxed">
-          Clinical decision-support for seizure onset zone (SOZ) localization from intracranial EEG using a
-          graph attention network trained on open clinical data.
+          Clinical decision-support for seizure onset zone (SOZ) localization from functional MRI (fMRI) and intracranial EEG using
+          Graph Attention Networks trained on open clinical data.
         </p>
       </div>
 
@@ -47,18 +47,17 @@ export function ModelDocumentation() {
           <Card className="border-border/80 bg-card/80 shadow-sm backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Model overview</CardTitle>
-              <CardDescription>What SOZ_GAT does and how it fits clinical workflows</CardDescription>
+              <CardDescription>What NeuroMap does and how it fits clinical workflows</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm leading-relaxed text-muted-foreground">
               <p>
-                SOZ_GAT (Seizure Onset Zone — Graph Attention Network) scores intracranial EEG channels for SOZ
-                likelihood using a 3-layer graph attention model with a skip connection. Node features are fifteen
-                hand-crafted metrics per channel; edges encode gamma-band coherence so the network can reason over
-                both local activity and inter-electrode coupling.
+                NeuroMap (Seizure Onset Zone — Graph Attention Network) identifies SOZ likelihood using a combination of Graph Attention Networks 
+                for both fMRI and iEEG modalities. For fMRI, the core model is <strong>EpilepsyGAT</strong>, utilizing GATv2Conv layers with GraphNorm 
+                operating on Functional Connectivity (FC) matrices, ensembled with a 2D CNN (FCMatrixCNN). For iEEG, it uses a 3-layer graph attention model with a skip connection.
               </p>
               <p>
-                The frontend also exposes an optional fMRI path that accepts functional connectivity matrices and
-                returns ROI-level probabilities for a client-side anatomical overlay.
+                The fMRI path extracts graph-theoretic node features (degree, betweenness, clustering) from the BOLD time-series alongside the FC adjacency matrix. 
+                The iEEG path computes fifteen hand-crafted metrics per channel, using gamma-band coherence for its edges. Both approaches allow the network to capture complex topological biomarkers of epileptogenic networks.
               </p>
               <p>
                 Outputs include per-channel SOZ probability, aggregate risk and confidence, and batch support for
@@ -98,40 +97,46 @@ export function ModelDocumentation() {
           <Card className="border-border/80 bg-card/80 shadow-sm backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Architecture</CardTitle>
-              <CardDescription>Aligned with the deployed SOZ_GAT checkpoint</CardDescription>
+              <CardDescription>Aligned with the deployed NeuroMap checkpoint</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5 text-sm leading-relaxed text-muted-foreground">
               <p>
-                The deployed model is a <strong className="text-foreground">Graph Attention Network (GAT)</strong>{' '}
-                with three attention layers and a skip connection, operating on a graph whose nodes are electrodes and
-                whose edges are derived from gamma-band coherence (with an adaptive median threshold). When raw EEG is
-                omitted, the API falls back to a fully connected graph for inference.
+                The deployed fMRI model is a <strong className="text-foreground">Graph Attention Network (EpilepsyGAT)</strong>{' '}
+                with 3 GATv2 layers, GraphNorm, and global pooling, ensembled with a 2D ResNet-style CNN. The fMRI GAT operates on an 
+                FC adjacency matrix thresholded at |r| {'>'} 0.15, using graph metrics as node features. 
+                The deployed iEEG model is a <strong className="text-foreground">3-layer GAT</strong> with a skip connection, 
+                operating on an electrode graph with gamma-band coherence edges (adaptive median threshold).
               </p>
 
               <div className="space-y-3">
-                <h4 className="font-medium text-foreground">Pipeline</h4>
+                <h4 className="font-medium text-foreground">Pipelines</h4>
                 <p className="rounded-md border border-border/60 bg-muted/30 p-3 font-mono text-xs text-foreground/90">
-                  iEEG → feature extraction (15 / channel) → StandardScaler → PyG graph → GAT → softmax logits
+                  fMRI → BOLD extraction → FC matrix & graph metrics → EpilepsyGAT + CNN Ensemble → ROI logits<br/>
+                  iEEG → feature extraction (15 / channel) → PyG graph → GAT → channel logits
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="font-medium text-foreground">Input features (order matters for /predict)</h4>
+                <h4 className="font-medium text-foreground">Input features (fMRI EpilepsyGAT)</h4>
                 <ol className="list-decimal space-y-1 pl-5 text-xs sm:text-sm">
-                  <li>variance, skewness, kurtosis, line_length, zero_crossing_rate</li>
-                  <li>
-                    logpower_delta, logpower_theta, logpower_alpha, logpower_beta, logpower_low_gamma,
-                    logpower_high_gamma
-                  </li>
-                  <li>spectral_entropy, hfo_rate, spike_rate, pac_theta_gamma</li>
+                  <li>BOLD time-series mean & standard deviation</li>
+                  <li>Graph degree, betweenness centrality, and clustering coefficient</li>
                 </ol>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mt-4">
+                <h4 className="font-medium text-foreground">Input features (iEEG)</h4>
+                <ol className="list-decimal space-y-1 pl-5 text-xs sm:text-sm">
+                  <li>variance, skewness, kurtosis, line_length, zero_crossing_rate, spectral_entropy, hfo_rate, spike_rate, pac_theta_gamma</li>
+                  <li>logpower (delta, theta, alpha, beta, low_gamma, high_gamma)</li>
+                </ol>
+              </div>
+
+              <div className="space-y-2 mt-4">
                 <h4 className="font-medium text-foreground">Outputs</h4>
                 <ul className="space-y-1 text-xs sm:text-sm">
-                  <li>• Binary SOZ vs normal prediction and SOZ probability per channel</li>
-                  <li>• Class probabilities (normal / SOZ) and session-level confidence and risk score</li>
+                  <li>• Binary SOZ vs normal prediction and SOZ probability per channel/ROI</li>
+                  <li>• GAT node embeddings and CNN features for fusion representation</li>
                 </ul>
               </div>
             </CardContent>
@@ -146,29 +151,27 @@ export function ModelDocumentation() {
             </CardHeader>
             <CardContent className="space-y-4 text-sm leading-relaxed text-muted-foreground">
               <p>
-                Training follows the project notebook protocol on{' '}
-                <strong className="text-foreground">OpenNeuro ds004752</strong> with clinical SOZ labels from BIDS
-                metadata. Cross-validation is leave-one-subject-out (LOSO) to reduce leakage across recordings from the
-                same patient. Reported accuracy in the backend README is on the order of{' '}
-                <strong className="text-foreground">~91% LOSO-CV</strong> — treat headline metrics as study-specific
-                until you validate on your own cohort.
+                Training for fMRI follows the OpenNeuro ds004469 dataset protocols using Schaefer-2018 (100 ROIs) parcellation, 
+                balanced via hybrid synthetic control injection, and evaluated via Stratified K-Fold. 
+                Training for iEEG follows the OpenNeuro ds004752 protocol with clinical SOZ labels from BIDS metadata, 
+                and is evaluated via leave-one-subject-out (LOSO) cross-validation, achieving ~91% LOSO-CV accuracy.
               </p>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-border/60 bg-muted/25 p-4">
-                  <h4 className="mb-2 font-medium text-foreground">Dataset</h4>
+                  <h4 className="mb-2 font-medium text-foreground">Datasets</h4>
                   <ul className="space-y-1 text-xs">
+                    <li>• OpenNeuro ds004469 (fMRI - 20 subjects)</li>
                     <li>• OpenNeuro ds004752 (iEEG)</li>
-                    <li>• SOZ labels from BIDS electrodes.tsv</li>
                     <li>• Focal loss (alpha=0.75, gamma=2.0)</li>
                   </ul>
                 </div>
                 <div className="rounded-lg border border-border/60 bg-muted/25 p-4">
                   <h4 className="mb-2 font-medium text-foreground">Preprocessing</h4>
                   <ul className="space-y-1 text-xs">
-                    <li>• StandardScaler fitted per LOSO fold</li>
-                    <li>• Same 15-feature recipe at train and inference</li>
-                    <li>• Graph: gamma coherence, adaptive median threshold</li>
+                    <li>• fMRI: Schaefer-2018 (100 ROIs) BOLD extraction & FC Thresholding</li>
+                    <li>• iEEG: StandardScaler fitted per LOSO fold & 15-feature extraction</li>
+                    <li>• Both: Custom graph construction (FC edges vs. gamma coherence)</li>
                   </ul>
                 </div>
               </div>
@@ -246,7 +249,7 @@ export function ModelDocumentation() {
               <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
                 <p className="mb-2 font-medium text-destructive">Clinical use disclaimer</p>
                 <p className="text-xs leading-relaxed text-foreground/85">
-                  SOZ_GAT is a decision-support tool only. It must not be the sole basis for diagnosis, surgical
+                  NeuroMap is a decision-support tool only. It must not be the sole basis for diagnosis, surgical
                   planning, or treatment. Interpret outputs with qualified epilepsy expertise and corroborating clinical,
                   imaging, and electrophysiological data.
                 </p>

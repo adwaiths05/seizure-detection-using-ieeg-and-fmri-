@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Outfit } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
-const inter = Inter({ 
+const outfit = Outfit({ 
   subsets: ["latin"],
   variable: "--font-sans"
 });
 
 export const metadata: Metadata = {
-  title: 'SOZ_GAT - Seizure Onset Zone Analysis',
-  description: 'Advanced medical analysis tool for identifying seizure onset zones in EEG data',
+  title: 'NeuroMap - Seizure Onset Zone Analysis',
+  description: 'Advanced medical analysis tool for identifying seizure onset zones in EEG and fMRI data',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -39,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${outfit.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
