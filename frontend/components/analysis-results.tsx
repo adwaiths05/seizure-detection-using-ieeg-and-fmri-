@@ -226,18 +226,7 @@ export function AnalysisResults({ result }: AnalysisResultsProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-muted/50 p-3">
-              <p className="text-xs text-muted-foreground">status</p>
-              <p className="font-mono text-sm font-semibold text-foreground">{data.status}</p>
-            </div>
-            <div className="rounded-lg bg-muted/50 p-3">
-              <p className="text-xs text-muted-foreground">features_extracted</p>
-              <p className="font-mono text-sm font-semibold text-foreground">
-                {data.features_extracted === undefined || data.features_extracted === null
-                  ? '—'
-                  : String(data.features_extracted)}
-              </p>
-            </div>
+
             <div className="rounded-lg bg-muted/50 p-3">
               <p className="text-xs text-muted-foreground">risk_score</p>
               <p className="text-lg font-bold text-primary">{(data.risk_score * 100).toFixed(1)}%</p>
