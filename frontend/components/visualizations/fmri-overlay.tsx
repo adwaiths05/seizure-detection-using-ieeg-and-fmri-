@@ -33,21 +33,53 @@ export function FmriOverlay({ roiProbs }: FmriOverlayProps) {
   const leftCount = Math.ceil(values.length / 2)
   const rightCount = values.length - leftCount
 
+  const ATLAS_COORDS = [
+    { x: 258.0, y: 75.1 }, { x: 198.5, y: 365.1 }, { x: 324.7, y: 264.4 }, { x: 116.3, y: 217.0 },
+    { x: 298.3, y: 60.0 }, { x: 327.0, y: 111.3 }, { x: 326.5, y: 163.4 }, { x: 325.4, y: 219.3 },
+    { x: 347.3, y: 276.4 }, { x: 327.1, y: 291.3 }, { x: 338.0, y: 367.6 }, { x: 144.1, y: 170.7 },
+    { x: 166.2, y: 133.3 }, { x: 145.0, y: 132.0 }, { x: 199.3, y: 125.7 }, { x: 319.3, y: 144.5 },
+    { x: 187.8, y: 206.4 }, { x: 191.6, y: 172.1 }, { x: 184.6, y: 369.1 }, { x: 297.5, y: 385.2 },
+    { x: 209.3, y: 308.4 }, { x: 319.3, y: 347.5 }, { x: 264.2, y: 238.3 }, { x: 238.3, y: 129.0 },
+    { x: 171.2, y: 332.9 }, { x: 119.5, y: 271.8 }, { x: 268.0, y: 321.4 }, { x: 162.9, y: 245.0 },
+    { x: 180.6, y: 214.6 }, { x: 333.3, y: 319.2 }, { x: 341.7, y: 125.3 }, { x: 343.6, y: 158.1 },
+    { x: 155.9, y: 234.1 }, { x: 103.9, y: 220.7 }, { x: 209.3, y: 176.1 }, { x: 112.0, y: 273.1 },
+    { x: 141.2, y: 266.9 }, { x: 100.0, y: 262.4 }, { x: 190.0, y: 130.6 }, { x: 179.9, y: 150.2 },
+    { x: 182.5, y: 264.5 }, { x: 300.6, y: 223.9 }, { x: 279.3, y: 400.0 }, { x: 221.0, y: 181.7 },
+    { x: 291.6, y: 335.7 }, { x: 204.2, y: 238.1 }, { x: 303.6, y: 272.1 }, { x: 228.1, y: 150.3 },
+    { x: 181.3, y: 218.7 }, { x: 204.6, y: 183.5 }, { x: 183.1, y: 242.3 }, { x: 258.3, y: 361.7 },
+    { x: 187.4, y: 143.2 }, { x: 239.7, y: 101.8 }, { x: 254.4, y: 152.1 }, { x: 134.9, y: 307.0 },
+    { x: 230.0, y: 316.7 }, { x: 221.2, y: 376.4 }, { x: 243.0, y: 365.3 }, { x: 167.5, y: 335.7 },
+    { x: 172.2, y: 302.5 }, { x: 235.5, y: 293.4 }, { x: 176.8, y: 105.3 }, { x: 307.5, y: 141.3 },
+    { x: 245.9, y: 120.5 }, { x: 293.6, y: 336.7 }, { x: 340.6, y: 218.9 }, { x: 195.0, y: 269.1 },
+    { x: 167.2, y: 184.0 }, { x: 240.8, y: 212.6 }, { x: 334.0, y: 118.8 }, { x: 319.7, y: 296.8 },
+    { x: 131.1, y: 267.4 }, { x: 147.8, y: 285.9 }, { x: 143.0, y: 246.5 }, { x: 450.2, y: 72.8 },
+    { x: 532.1, y: 359.2 }, { x: 381.7, y: 265.8 }, { x: 593.3, y: 215.0 }, { x: 430.1, y: 60.8 },
+    { x: 389.5, y: 112.1 }, { x: 388.0, y: 161.2 }, { x: 386.4, y: 216.9 }, { x: 365.1, y: 274.9 },
+    { x: 390.9, y: 293.5 }, { x: 379.0, y: 361.7 }, { x: 578.4, y: 174.3 }, { x: 564.6, y: 126.5 },
+    { x: 578.7, y: 135.7 }, { x: 518.0, y: 126.4 }, { x: 396.3, y: 144.5 }, { x: 530.9, y: 205.2 },
+    { x: 527.3, y: 172.2 }, { x: 531.7, y: 365.8 }, { x: 432.0, y: 373.6 }, { x: 500.4, y: 307.4 },
+    { x: 397.7, y: 335.1 }, { x: 455.1, y: 236.5 }, { x: 473.5, y: 125.3 }, { x: 562.8, y: 316.1 },
+    { x: 599.8, y: 258.9 }, { x: 448.0, y: 313.3 }, { x: 545.9, y: 241.7 }, { x: 525.1, y: 214.4 },
+    { x: 381.1, y: 320.3 }, { x: 374.4, y: 129.5 }, { x: 372.0, y: 162.1 }, { x: 559.1, y: 229.8 },
+    { x: 615.6, y: 215.1 }, { x: 525.1, y: 178.7 }, { x: 607.2, y: 259.1 }, { x: 582.5, y: 265.3 },
+    { x: 620.0, y: 257.5 }, { x: 526.1, y: 135.2 }, { x: 548.0, y: 152.0 }, { x: 528.7, y: 251.2 },
+    { x: 418.5, y: 223.1 }, { x: 432.2, y: 396.6 }, { x: 508.6, y: 177.6 }, { x: 428.1, y: 330.1 },
+    { x: 507.1, y: 235.6 }, { x: 408.7, y: 271.7 }, { x: 494.2, y: 148.8 }, { x: 536.4, y: 218.3 },
+    { x: 512.8, y: 181.4 }, { x: 535.0, y: 239.5 }, { x: 462.0, y: 361.2 }, { x: 528.7, y: 142.0 },
+    { x: 483.0, y: 105.2 }, { x: 459.9, y: 150.6 }, { x: 567.8, y: 287.2 }, { x: 486.3, y: 308.6 },
+    { x: 502.2, y: 370.8 }, { x: 475.6, y: 359.0 }, { x: 548.5, y: 332.8 }, { x: 545.9, y: 301.7 },
+    { x: 482.7, y: 293.9 }, { x: 538.6, y: 107.5 }, { x: 409.4, y: 140.8 }, { x: 469.7, y: 118.8 },
+    { x: 427.4, y: 333.2 }, { x: 375.6, y: 213.3 }, { x: 514.5, y: 263.4 }, { x: 542.5, y: 180.8 },
+    { x: 474.6, y: 209.6 }, { x: 380.9, y: 104.1 }, { x: 390.6, y: 295.8 }, { x: 591.0, y: 266.3 },
+    { x: 567.1, y: 280.3 }, { x: 577.1, y: 240.0 }
+  ];
+
   function roiPoint(index: number): { x: number; y: number } {
-    const isLeft = index < leftCount
-    const localIndex = isLeft ? index : index - leftCount
-    const localTotal = isLeft ? leftCount : Math.max(1, rightCount)
-    const t = localTotal <= 1 ? 0.5 : localIndex / (localTotal - 1)
-
-    // Traverse a curved cortical arc (front-top to back-bottom) per hemisphere.
-    const angle = -1.15 + t * 2.3
-    const rX = 86 + (localIndex % 3) * 17
-    const rY = 102 + ((localIndex + 1) % 4) * 10
-    const cx = isLeft ? leftCenterX : rightCenterX
-
-    const x = cx + Math.cos(angle) * rX
-    const y = centerY + Math.sin(angle) * rY
-    return { x, y }
+    if (index < ATLAS_COORDS.length) {
+      return ATLAS_COORDS[index];
+    }
+    // Fallback for unexpected ROI lengths
+    return { x: leftCenterX, y: centerY };
   }
 
   return (
@@ -153,11 +185,11 @@ export function FmriOverlay({ roiProbs }: FmriOverlayProps) {
               <text x="500" y="58" fill="rgba(226, 232, 240, 0.72)" fontSize="16" fontWeight="600">
                 Right hemisphere
               </text>
-              <text x="272" y="430" fill="rgba(226, 232, 240, 0.72)" fontSize="13" fontWeight="500">
-                Frontal
+              <text x="330" y="30" fill="rgba(226, 232, 240, 0.72)" fontSize="13" fontWeight="500">
+                Frontal (Anterior)
               </text>
-              <text x="410" y="430" fill="rgba(226, 232, 240, 0.72)" fontSize="13" fontWeight="500">
-                Occipital
+              <text x="325" y="445" fill="rgba(226, 232, 240, 0.72)" fontSize="13" fontWeight="500">
+                Occipital (Posterior)
               </text>
             </svg>
           </div>
@@ -206,8 +238,8 @@ export function FmriOverlay({ roiProbs }: FmriOverlayProps) {
                   High probability
                 </div>
                 <p className="pt-2 leading-relaxed">
-                  The overlay is client-side and atlas-agnostic. It visualizes the returned ROI scores directly so you
-                  can compare predictions without waiting for any server-side imaging step.
+                  The overlay is client-side and uses 2D projections of the 3D Destrieux atlas. The mapped coordinates 
+                  perfectly match the anatomical placement in the interactive 3D view.
                 </p>
               </div>
             </div>
