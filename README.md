@@ -1,4 +1,4 @@
-# SOZ_GAT Project
+# SOZ GAT Project
 
 This project provides a full-stack application for Seizure Onset Zone (SOZ) detection using an iEEG Graph Attention Network (GAT).
 
