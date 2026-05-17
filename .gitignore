@@ -60,6 +60,5 @@ venv.bak/
 .docker/
 
 # Project specific
-backend/saved_models/
 backend/logs/
 test.txt
