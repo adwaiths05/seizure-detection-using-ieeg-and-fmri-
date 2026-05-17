@@ -62,6 +62,14 @@ export interface BatchResultError {
 
 export type BatchPredictResponseClient = BatchPredictResponse & { client_timing_ms?: number }
 
+export interface CombinedPredictResponseClient {
+  status: string
+  ieeg: PredictResponseClient
+  fmri: FmriPredictResponseClient
+  combined_risk: number
+  client_timing_ms?: number
+}
+
 export function isBatchResultSuccess(row: Record<string, unknown>): row is BatchResultSuccess {
   return row.status === 'ok' && Array.isArray(row.predictions) && typeof row.sample_index === 'number'
 }

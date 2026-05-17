@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Cpu, Activity } from 'lucide-react'
 import { ConfidenceGauge } from './visualizations/confidence-gauge'
 import { ResultsChart } from './visualizations/results-chart'
 import { ChannelResults } from './visualizations/channel-results'
@@ -13,15 +13,16 @@ import {
   type BatchPredictResponseClient,
   type FmriPredictResponseClient,
   type PredictResponseClient,
+  type CombinedPredictResponseClient,
   isBatchResultSuccess,
   isBatchResultError,
 } from '@/lib/types/soz-api'
 
-export type { PredictResponseClient, BatchPredictResponseClient, FmriPredictResponseClient } from '@/lib/types/soz-api'
+export type { PredictResponseClient, BatchPredictResponseClient, FmriPredictResponseClient, CombinedPredictResponseClient } from '@/lib/types/soz-api'
 
 export interface AnalysisResult {
-  mode: 'features' | 'raw_eeg' | 'batch' | 'fmri'
-  data: PredictResponseClient | BatchPredictResponseClient | FmriPredictResponseClient
+  mode: 'features' | 'raw_eeg' | 'batch' | 'fmri' | 'combined'
+  data: PredictResponseClient | BatchPredictResponseClient | FmriPredictResponseClient | CombinedPredictResponseClient
   timestamp: string
 }
 
@@ -37,6 +38,42 @@ function isBatchPayload(
 
 export function AnalysisResults({ result }: AnalysisResultsProps) {
   const formattedTime = format(new Date(result.timestamp), 'MMM dd, yyyy HH:mm:ss')
+
+  if (result.mode === 'combined') {
+    const data = result.data as CombinedPredictResponseClient
+
+    return (
+      <div className="space-y-6">
+        <Card className="border border-border bg-card ring-2 ring-primary/20">
+          <CardHeader>
+            <CardTitle className="text-base text-primary">Multimodal combined analysis</CardTitle>
+            <CardDescription className="text-xs">{formattedTime}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg bg-primary/10 p-4 border border-primary/20">
+              <p className="text-sm font-medium text-primary-foreground mb-1 text-center">Combined SOZ Risk Score</p>
+              <p className="text-3xl font-bold text-primary text-center">{(data.combined_risk * 100).toFixed(1)}%</p>
+              <p className="text-xs text-center text-muted-foreground mt-2">Averaged across iEEG ({((data.ieeg.risk_score || 0)*100).toFixed(1)}%) and fMRI ({((data.fmri.prob_gat || 0)*100).toFixed(1)}%)</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Tabs defaultValue="ieeg" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-muted text-xs h-10">
+            <TabsTrigger value="ieeg" className="gap-2"><Cpu className="h-4 w-4"/> iEEG Results</TabsTrigger>
+            <TabsTrigger value="fmri" className="gap-2"><Activity className="h-4 w-4"/> fMRI Results</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="ieeg" className="mt-4">
+            <AnalysisResults result={{ mode: 'raw_eeg', data: data.ieeg, timestamp: result.timestamp }} />
+          </TabsContent>
+          <TabsContent value="fmri" className="mt-4">
+            <AnalysisResults result={{ mode: 'fmri', data: data.fmri, timestamp: result.timestamp }} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    )
+  }
 
   if (result.mode === 'fmri') {
     const data = result.data as FmriPredictResponseClient

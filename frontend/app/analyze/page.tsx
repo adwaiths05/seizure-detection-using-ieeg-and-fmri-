@@ -7,11 +7,12 @@ import { FeaturesForm } from '@/components/forms/features-form'
 import { FmriForm } from '@/components/forms/fmri-form'
 import { RawEEGForm } from '@/components/forms/raw-eeg-form'
 import { BatchForm } from '@/components/forms/batch-form'
+import { CombinedForm } from '@/components/forms/combined-form'
 import { AnalysisResults, type AnalysisResult } from '@/components/analysis-results'
-import type { BatchPredictResponseClient, FmriPredictResponseClient, PredictResponseClient } from '@/lib/types/soz-api'
+import type { BatchPredictResponseClient, FmriPredictResponseClient, PredictResponseClient, CombinedPredictResponseClient } from '@/lib/types/soz-api'
 import { getApiBaseUrl, readErrorDetail } from '@/lib/api'
 import { parseBatchFeatureBlocks, parseChannelNames, parseFeatureMatrix, parseRawEegCsv } from '@/lib/parse-eeg'
-import { Activity, Brain, Cpu, BarChart3 } from 'lucide-react'
+import { Activity, Brain, Cpu, BarChart3, Layers } from 'lucide-react'
 
 const N_FEATURES = 15
 
@@ -19,7 +20,7 @@ export default function AnalyzePage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
-  const [activeTab, setActiveTab] = useState('features')
+  const [activeTab, setActiveTab] = useState('combined')
 
   const API_URL = getApiBaseUrl()
 
@@ -204,6 +205,80 @@ export default function AnalyzePage() {
     }
   }
 
+  const handleCombinedSubmit = async ({
+    rawCsv,
+    sfreq,
+    channelNamesText,
+    fmriFile
+  }: {
+    rawCsv: string
+    sfreq: number
+    channelNamesText: string
+    fmriFile: File
+  }) => {
+    setLoading(true)
+    setError(undefined)
+    try {
+      if (!Number.isFinite(sfreq) || sfreq <= 0) {
+        throw new Error('Enter a valid sampling rate (Hz) for iEEG.')
+      }
+      const raw_eeg = parseRawEegCsv(rawCsv)
+      const channel_names = parseChannelNames(channelNamesText)
+      if (channel_names && channel_names.length !== raw_eeg.length) {
+        throw new Error('Number of channel names must match number of CSV rows (channels).')
+      }
+
+      const t0 = performance.now()
+      
+      const eegPromise = fetch(`${API_URL}/predict/raw`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_eeg,
+          sfreq,
+          ...(channel_names ? { channel_names } : {}),
+        }),
+        mode: 'cors',
+      })
+
+      const fmriFormData = new FormData()
+      fmriFormData.append('file', fmriFile)
+      
+      const fmriPromise = fetch(`${API_URL}/predict/fmri/upload`, {
+        method: 'POST',
+        body: fmriFormData,
+        mode: 'cors',
+      })
+
+      const [eegResponse, fmriResponse] = await Promise.all([eegPromise, fmriPromise])
+      const elapsed = performance.now() - t0
+
+      if (!eegResponse.ok) throw new Error(`iEEG Error: ${await readErrorDetail(eegResponse)}`)
+      if (!fmriResponse.ok) throw new Error(`fMRI Error: ${await readErrorDetail(fmriResponse)}`)
+
+      const ieegData = (await eegResponse.json()) as PredictResponseClient
+      const fmriData = (await fmriResponse.json()) as FmriPredictResponseClient
+
+      const combinedRisk = (ieegData.risk_score + fmriData.prob_gat) / 2.0
+
+      setAnalysisResult({
+        mode: 'combined',
+        data: {
+          status: 'ok',
+          ieeg: ieegData,
+          fmri: fmriData,
+          combined_risk: combinedRisk,
+          client_timing_ms: elapsed
+        } as CombinedPredictResponseClient,
+        timestamp: new Date().toISOString(),
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Combined request failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <Navigation />
@@ -220,7 +295,11 @@ export default function AnalyzePage() {
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-muted">
+                <TabsList className="grid w-full grid-cols-5 bg-muted">
+                  <TabsTrigger value="combined" className="flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    <span className="hidden sm:inline">Combined</span>
+                  </TabsTrigger>
                   <TabsTrigger value="features" className="flex items-center gap-2">
                     <Brain className="h-4 w-4" />
                     <span className="hidden sm:inline">Features</span>
@@ -238,6 +317,10 @@ export default function AnalyzePage() {
                     <span className="hidden sm:inline">Batch</span>
                   </TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="combined" className="mt-6">
+                  <CombinedForm onSubmit={handleCombinedSubmit} loading={loading} error={error} />
+                </TabsContent>
 
                 <TabsContent value="features" className="mt-6">
                   <FeaturesForm onSubmit={handleFeaturesSubmit} loading={loading} error={error} />
