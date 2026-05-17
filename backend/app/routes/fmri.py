@@ -5,7 +5,9 @@ import os
 import shutil
 import numpy as np
 
+from fastapi.responses import HTMLResponse
 from app.services.fmri_service import FMRI
+from app.services.visualization_service import generate_3d_brain_html
 
 router = APIRouter()
 
@@ -39,6 +41,25 @@ async def predict_fmri(req: FMRIPredictRequest):
         return {"status": "ok", **out}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/predict/fmri/3d", response_class=HTMLResponse)
+async def predict_fmri_3d_viz(probs: str):
+    """
+    Generate a 3D visualization of fMRI ROIs.
+    probs: comma-separated list of float probabilities.
+    """
+    try:
+        if not probs:
+            raise ValueError("probs query parameter is empty")
+        
+        # Parse the comma-separated string into a list of floats
+        roi_probs = [float(p.strip()) for p in probs.split(",")]
+        
+        # Generate HTML string using Plotly and Nilearn
+        html_content = generate_3d_brain_html(roi_probs)
+        return HTMLResponse(content=html_content, status_code=200)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate 3D viz: {str(e)}")
 
 
 @router.post("/predict/fmri/upload")

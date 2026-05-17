@@ -78,6 +78,8 @@ class InferenceService:
             for i in range(n_ch)
         ]
 
+        result["features_extracted"] = False
+
         return result
 
     @staticmethod

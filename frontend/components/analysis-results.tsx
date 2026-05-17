@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { ExternalLink } from 'lucide-react'
 import { ConfidenceGauge } from './visualizations/confidence-gauge'
 import { ResultsChart } from './visualizations/results-chart'
 import { ChannelResults } from './visualizations/channel-results'
@@ -89,6 +91,20 @@ export function AnalysisResults({ result }: AnalysisResultsProps) {
 
           <TabsContent value="overlay" className="mt-4">
             <FmriOverlay roiProbs={roiValues} />
+            <div className="mt-4 flex justify-end">
+              <Button 
+                onClick={() => {
+                  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+                  const url = `${baseUrl.replace(/\/$/, '')}/predict/fmri/3d?probs=${roiValues.join(',')}`;
+                  window.open(url, '_blank');
+                }}
+                variant="outline"
+                className="gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Open Interactive 3D Visualization
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="raw" className="mt-4">
@@ -259,10 +275,10 @@ export function AnalysisResults({ result }: AnalysisResultsProps) {
       </Card>
 
       <Tabs defaultValue="gauge" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted text-xs">
-          <TabsTrigger value="gauge">confidence</TabsTrigger>
-          <TabsTrigger value="chart">class_probabilities (mean)</TabsTrigger>
-          <TabsTrigger value="channels">per_channel</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-muted text-xs sm:text-sm h-10">
+          <TabsTrigger value="gauge">Confidence</TabsTrigger>
+          <TabsTrigger value="chart">Classes</TabsTrigger>
+          <TabsTrigger value="channels">Channels</TabsTrigger>
         </TabsList>
 
         <TabsContent value="gauge" className="mt-4">

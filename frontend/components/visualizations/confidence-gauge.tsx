@@ -14,9 +14,9 @@ export function ConfidenceGauge({ value }: ConfidenceGaugeProps) {
   ]
 
   const getColor = (val: number) => {
-    if (val >= 80) return 'hsl(var(--color-chart-2))'
-    if (val >= 60) return 'hsl(var(--color-chart-4))'
-    return 'hsl(var(--color-chart-5))'
+    if (val >= 80) return '#22c55e' // text-green-500
+    if (val >= 60) return '#eab308' // text-yellow-500
+    return '#ef4444' // text-red-500
   }
 
   return (
@@ -58,7 +58,7 @@ export function ConfidenceGauge({ value }: ConfidenceGaugeProps) {
         </div>
         <div className="w-full bg-muted rounded-full h-2">
           <div
-            className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 h-2 rounded-full transition-all duration-500"
             style={{ width: `${percentage}%` }}
           />
         </div>

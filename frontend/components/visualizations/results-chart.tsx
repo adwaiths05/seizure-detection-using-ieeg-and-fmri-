@@ -31,17 +31,18 @@ export function ResultsChart({ data }: ResultsChartProps) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'hsl(var(--color-card))',
+              backgroundColor: 'hsl(var(--color-foreground))',
               border: '1px solid hsl(var(--color-border))',
               borderRadius: '8px',
-              color: 'hsl(var(--color-foreground))',
+              color: 'hsl(var(--color-background))',
             }}
+            itemStyle={{ color: 'hsl(var(--color-background))' }}
             cursor={{ fill: 'hsl(var(--color-muted))', opacity: 0.1 }}
             formatter={(value: number) => `${value.toFixed(2)}%`}
           />
           <Bar
             dataKey="score"
-            fill="hsl(var(--color-chart-1))"
+            fill="#3b82f6"
             radius={[8, 8, 0, 0]}
             animationDuration={500}
           />

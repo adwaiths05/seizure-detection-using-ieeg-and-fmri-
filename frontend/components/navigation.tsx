@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Activity, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { fetchHealth, getApiBaseUrl, type HealthPayload } from '@/lib/api'
 
 const navLinks = [
@@ -150,6 +151,7 @@ export function Navigation() {
             <div className={`flex flex-col items-end sm:hidden ${statusColor}`} title={statusMessage}>
               <span className={`h-2 w-2 rounded-full ${dotColor}`} />
             </div>
+            <ThemeToggle />
           </div>
         </div>
       </div>
