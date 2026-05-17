@@ -174,6 +174,36 @@ export default function AnalyzePage() {
     }
   }
 
+  const handleFmriUpload = async (file: File) => {
+    setLoading(true)
+    setError(undefined)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const t0 = performance.now()
+      const response = await fetch(`${API_URL}/predict/fmri/upload`, {
+        method: 'POST',
+        body: formData,
+        mode: 'cors',
+      })
+      const elapsed = performance.now() - t0
+      if (!response.ok) {
+        throw new Error(await readErrorDetail(response))
+      }
+      const data = (await response.json()) as FmriPredictResponseClient
+      setAnalysisResult({
+        mode: 'fmri',
+        data: { ...data, client_timing_ms: elapsed },
+        timestamp: new Date().toISOString(),
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <Navigation />
@@ -218,7 +248,7 @@ export default function AnalyzePage() {
                 </TabsContent>
 
                 <TabsContent value="fmri" className="mt-6">
-                  <FmriForm onSubmit={handleFmriSubmit} loading={loading} error={error} />
+                  <FmriForm onSubmit={handleFmriSubmit} onUpload={handleFmriUpload} loading={loading} error={error} />
                 </TabsContent>
 
                 <TabsContent value="batch" className="mt-6">
