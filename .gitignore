@@ -62,3 +62,8 @@ venv.bak/
 # Project specific
 backend/logs/
 test.txt
+backend/nilearn_cache/
+*.nii
+*.nii.gz
+*.pth
+*.pt
